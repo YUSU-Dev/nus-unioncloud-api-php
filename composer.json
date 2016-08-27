@@ -1,0 +1,11 @@
+{
+    "name": "yusu/nus-unioncloud-api-php",
+    "description": "A PHP Wrapper for the UnionCloud APIs",
+    "authors": [
+        {
+            "name": "Liam McDaid",
+            "email": "liam@liammcdaid.com"
+        }
+    ],
+    "require": {}
+}
