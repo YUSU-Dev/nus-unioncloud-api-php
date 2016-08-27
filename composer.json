@@ -7,5 +7,7 @@
             "email": "liam@liammcdaid.com"
         }
     ],
-    "require": {}
+    "require": {
+        "php-curl-class/php-curl-class": "^5.1"
+    }
 }
