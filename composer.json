@@ -9,5 +9,10 @@
     ],
     "require": {
         "php-curl-class/php-curl-class": "^5.1"
+    },
+    "autoload": {
+        "psr-4": {
+            "UnionCloud\\": "src/UnionCloud/"
+        }
     }
 }
