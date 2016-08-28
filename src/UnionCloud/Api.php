@@ -8,6 +8,7 @@ use \Exception as Exception;
 class Api {
     
     private $host;
+    
     private $auth_token;
     private $auth_token_expires;
     
@@ -51,14 +52,20 @@ class Api {
         return $curl;
     }
     
-    public function _curl_debug($curl) {
-        return [
+    public function _curl_debug($curl, $echo_pre = false) {
+        $debug_data = [
             "url" => $curl->getOpt(CURLOPT_URL),
             "request_headers" => iterator_to_array($curl->requestHeaders),
             "request" => @$curl->getOpt(CURLOPT_POSTFIELDS),
             "response_headers" => iterator_to_array($curl->responseHeaders),
             "response" => $curl->response
         ];
+        
+        if ($echo_pre) {
+            return "<pre>" . print_r($debug_data, true) . "</pre>";
+        } else {
+            return $debug_data;
+        }
     }
     
     public function _curl_exceptions($where) {
@@ -134,16 +141,19 @@ class Api {
     #
     # Uploads
     #
-    public function upload_student() {
-        throw new Exception("Not implemented");
+    public function upload_student($data) {
+        $curl = $this->_post("/json/upload/students", ["data" => $data]);
+        return @$curl->response["data"];
     }
     
-    public function upload_guest() {
-        throw new Exception("Not implemented");
+    public function upload_guest($data) {
+        $curl = $this->_post("/json/upload/guests", ["data" => $data]);
+        return @$curl->response["data"];
     }
     
-    public function upload_programme() {
-        throw new Exception("Not implemented");
+    public function upload_programme($data) {
+        $curl = $this->_post("/json/upload/programmes", ["data" => $data]);
+        return @$curl->response["data"];
     }
 
     
@@ -181,44 +191,65 @@ class Api {
     
     
     #
-    # UserGrops
+    # UserGroups
     #
+    public function usergroup_all($mode = "standard") {
+        $curl = $this->_get("/user_groups", ["mode" => $mode]); 
+        return $curl->response["data"];
+    }
+    
     public function usergroup_search($filters, $mode = "standard") {
-        throw new Exception("Not implemented");
+        $curl = $this->_post("/user_groups/search", ["data" => $filters], ["mode" => $mode]); 
+        return $curl->response["data"];
     }
     
     public function usergroup_create($data) {
-        throw new Exception("Not implemented");
+        $curl = $this->_post("/user_groups", ["data" => $data]); 
+        return $curl->response["data"];
     }
     
-    public function usergroup_get() {
-        throw new Exception("Not implemented");
+    public function usergroup_get($ug_id, $mode = "standard") {
+        $curl = $this->_get("/user_groups/".$ug_id, ["mode" => $mode]); 
+        return $curl->response["data"][0];
+    }
+    
+    public function usergroup_get_members($ug_id, $mode = "standard", $from = null, $to = null) {
+        $curl = $this->_get("/user_groups/".$ug_id."/user_group_memberships", ["mode" => $mode]); 
+        return $curl->response["data"];
     }
     
     public function usergroup_update($ug_id, $data) {
-        throw new Exception("Not implemented");
+        $curl = $this->_put("/user_groups/".$ug_id, ["data" => $data]); 
+        return $curl->response["data"][0];
     }
     
     public function usergroup_delete($ug_id) {
-        throw new Exception("Not implemented");
+        $curl = $this->_delete("/user_groups/".$ug_id); 
+        return $curl->response["data"][0];
     }
 
-    
+    public function usergroup_folderstructure() {
+        $curl = $this->_get("/user_groups/folderstructure"); 
+        return $curl->response["data"];
+    }
     
     
     #
-    # Event Questions
+    # UserGroup Membership
     #
-    public function usergroup_memberships_create($data) {
-        throw new Exception("Not implemented");
+    public function usergroup_membership_create($data) {
+        $curl = $this->_post("/user_group_memberships", ["data" => $data]); 
+        return $curl->response["data"];
     }
     
-    public function usergroup_memberships_update($ugm_id, $data) {
-        throw new Exception("Not implemented");
+    public function usergroup_membership_update($ugm_id, $data) {
+        $curl = $this->_put("/user_group_memberships/".$ugm_id, ["data" => $data]); 
+        return $curl->response["data"];
     }
     
-    public function usergroup_memberships_delete($ugm_id) {
-        throw new Exception("Not implemented");
+    public function usergroup_membership_delete($ugm_id) {
+        $curl = $this->_delete("/user_group_memberships/".$ugm_id, ["data" => $data]); 
+        return $curl->response["data"];
     }
 
     
@@ -228,7 +259,8 @@ class Api {
     # Event Types
     #
     public function eventtypes_get() {
-        throw new Exception("Not implemented");
+        $curl = $this->_get("/event_types");
+        return $curl->response["data"];
     }
 
     
@@ -237,28 +269,40 @@ class Api {
     #
     # Events
     #
+    public function event_all($mode = "standard") {
+        $curl = $this->_get("/events", ["mode" => $mode]); 
+        return $curl->response["data"];
+    }
+    
     public function event_search($filters, $mode = "standard") {
-        throw new Exception("Not implemented");
+        $curl = $this->_post("/events/search", ["data" => $filters], ["mode" => $mode]);
+        echo $this->_curl_debug($curl, true);
+        return $curl->response["data"];
     }
     
     public function event_create($data) {
-        throw new Exception("Not implemented");
+        $curl = $this->_post("/events", ["data" => $data]); 
+        return $curl->response["data"];
     }
     
     public function event_get($event_id, $mode = "standard") {
-        throw new Exception("Not implemented");
+        $curl = $this->_get("/events/".$event_id, ["mode" => $mode]);
+        return $curl->response["data"][0];
     }
     
     public function event_update($event_id, $data) {
-        throw new Exception("Not implemented");
+        $curl = $this->_put("/events/".$event_id, ["data" => $data]); 
+        return $curl->response["data"];
     }
     
     public function event_cancel($event_id) {
-        throw new Exception("Not implemented");
+        $curl = $this->_put("/events/".$event_id."/cancel"); 
+        return $curl->response["data"];
     }
     
     public function event_attendees($event_id, $mode = "standard") {
-        throw new Exception("Not implemented");
+        $curl = $this->_get("/events/".$event_id."/attendees", ["mode" => $mode]);
+        return $curl->response["data"];
     }
 
     
@@ -268,15 +312,18 @@ class Api {
     # Event Ticket Types
     #
     public function event_tickettype_create($event_id, $data) {
-        throw new Exception("Not implemented");
+        $curl = $this->_post("/events/".$event_id."/event_ticket_types", ["data" => $data]); 
+        return $curl->response["data"];
     }
     
     public function event_tickettype_update($event_id, $event_ticket_type_id, $data) {
-        throw new Exception("Not implemented");
+        $curl = $this->_put("/events/".$event_id."/event_ticket_types/".$event_ticket_type_id, ["data" => $data]); 
+        return $curl->response["data"];
     }
     
     public function event_tickettype_delete($event_id, $event_ticket_type_id) {
-        throw new Exception("Not implemented");
+        $curl = $this->_delete("/events/".$event_id."/event_ticket_types/".$event_ticket_type_id); 
+        return $curl->response["data"];
     }
 
     
@@ -286,15 +333,18 @@ class Api {
     # Event Questions
     #
     public function event_question_create($event_id, $data) {
-        throw new Exception("Not implemented");
+        $curl = $this->_post("/events/".$event_id."/questions", ["data" => $data]); 
+        return $curl->response["data"];
     }
     
     public function event_question_update($event_id, $question_id, $data) {
-        throw new Exception("Not implemented");
+        $curl = $this->_put("/events/".$event_id."/questions/".$question_id, ["data" => $data]); 
+        return $curl->response["data"];
     }
     
     public function event_question_delete($event_id, $question_id) {
-        throw new Exception("Not implemented");
+        $curl = $this->_delete("/events/".$event_id."/questions/".$question_id); 
+        return $curl->response["data"];
     }
     
 }
