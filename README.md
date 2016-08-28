@@ -6,4 +6,4 @@ This is a wrapper written in PHP to allow them to be easily used.
 
 ## Access to the APIs
 
-The APIs are only available to a select number of Student Unions using the [UnionCloud Platform}(http://www.unioncloud.co.uk/). Please contact NUS for access.
+The APIs are only available to a select number of Student Unions using the [UnionCloud Platform](http://www.unioncloud.co.uk/). Please contact NUS for access.
