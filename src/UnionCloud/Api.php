@@ -43,7 +43,6 @@ class Api {
         $curl->setDefaultJsonDecoder(true);
         
         $curl->setURL("https://". $this->host . "/api" . $endpoint);
-        //$curl->setOpt(CURLOPT_POSTFIELDS, json_encode($data, JSON_UNESCAPED_SLASHES));
         
         if ($verb == "POST") {
             $curl->setOpt(CURLOPT_POST, true);
@@ -84,7 +83,6 @@ class Api {
         $curl = $this->_curl($api_endpoint, "GET");
         $curl->exec();
         
-        //echo "<pre>". print_r($this->_curl_debug($curl), true) ."</pre>";
         return $curl;
     }
     
@@ -97,7 +95,6 @@ class Api {
         $curl->setOpt(CURLOPT_POSTFIELDS, json_encode($post_data, JSON_UNESCAPED_SLASHES));
         $curl->exec();
         
-        //echo "<pre>". print_r($this->_curl_debug($curl), true) ."</pre>";
         return $curl;
     }
     
@@ -110,7 +107,7 @@ class Api {
     
     public function _delete($endpoint, $data = null) {
         $curl = $this->_curl($endpoint, "DELETE");
-        $curl->exec();
+        $curl->exec();     
         return $curl;
     }
     
@@ -278,7 +275,6 @@ class Api {
     
     public function event_search($filters, $mode = "standard") {
         $curl = $this->_post("/events/search", ["data" => $filters], ["mode" => $mode]);
-        echo $this->_curl_debug($curl, true);
         return $curl->response["data"];
     }
     
