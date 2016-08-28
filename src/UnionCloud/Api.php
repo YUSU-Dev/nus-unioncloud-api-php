@@ -29,7 +29,7 @@ class Api {
     #
     # Curl functions
     #
-    public function _curl($endpoint, $verb) {
+    private function _curl($endpoint, $verb) {
         $curl = new Curl();
         $curl->setUserAgent('UnionCloud API PHP Wrapper v' . $this->VERSION);
         $curl->setOpt(CURLOPT_SSL_VERIFYPEER, false);
@@ -53,7 +53,7 @@ class Api {
         return $curl;
     }
     
-    public function _curl_debug($curl, $echo_pre = false) {
+    private function _curl_debug($curl, $echo_pre = false) {
         $debug_data = [
             "url" => $curl->getOpt(CURLOPT_URL),
             "request_headers" => iterator_to_array($curl->requestHeaders),
@@ -69,13 +69,13 @@ class Api {
         }
     }
     
-    public function _curl_exceptions($where) {
+    private function _curl_exceptions($where) {
         if (array_key_exists("errors", $where)) {
             throw new Exception($where["errors"][0]["error_message"], str_replace("ERR", "", $where["errors"][0]["error_code"]));
         }
     }
     
-    public function _get($endpoint, $get_fields = null) {
+    private function _get($endpoint, $get_fields = null) {
         $api_endpoint = $endpoint;
         if ($get_fields != null) {
             $api_endpoint .= "?" . http_build_query($get_fields);
@@ -86,7 +86,7 @@ class Api {
         return $curl;
     }
     
-    public function _post($endpoint, $post_data, $get_fields = null) {
+    private function _post($endpoint, $post_data, $get_fields = null) {
         $api_endpoint = $endpoint;
         if ($get_fields != null) {
             $api_endpoint .= "?" . http_build_query($get_fields);
@@ -98,14 +98,14 @@ class Api {
         return $curl;
     }
     
-    public function _put($endpoint, $data) {
+    private function _put($endpoint, $data) {
         $curl = $this->_curl($endpoint, "PUT");
         $curl->setOpt(CURLOPT_POSTFIELDS, json_encode($data, JSON_UNESCAPED_SLASHES));
         $curl->exec();
         return $curl;
     }
     
-    public function _delete($endpoint, $data = null) {
+    private function _delete($endpoint, $data = null) {
         $curl = $this->_curl($endpoint, "DELETE");
         $curl->exec();     
         return $curl;
