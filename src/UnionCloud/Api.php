@@ -7,6 +7,8 @@ use \Exception as Exception;
 
 class Api {
     
+    private $VERSION = "0.1.0";
+    
     private $host;
     
     private $auth_token;
@@ -29,7 +31,7 @@ class Api {
     #
     public function _curl($endpoint, $verb) {
         $curl = new Curl();
-        $curl->setUserAgent('UnionCloud API PHP Wrapper v-dev-master');
+        $curl->setUserAgent('UnionCloud API PHP Wrapper v' . $this->VERSION);
         $curl->setOpt(CURLOPT_SSL_VERIFYPEER, false);
         
         $curl->setHeader("Content-Type", "application/json");
