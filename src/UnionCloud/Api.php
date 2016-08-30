@@ -32,7 +32,8 @@ class Api {
     private function _curl($endpoint, $verb) {
         $curl = new Curl();
         $curl->setUserAgent('UnionCloud API PHP Wrapper v' . $this->VERSION);
-        $curl->setOpt(CURLOPT_SSL_VERIFYPEER, false);
+        $curl->setOpt(CURLOPT_SSL_VERIFYPEER, true);
+        $curl->setOpt(CURLOPT_SSL_VERIFYHOST, 2);
         
         $curl->setHeader("Content-Type", "application/json");
         if ($this->auth_token != null) {
@@ -94,6 +95,10 @@ class Api {
         $curl = $this->_curl($api_endpoint, "POST");
         $curl->setOpt(CURLOPT_POSTFIELDS, json_encode($post_data, JSON_UNESCAPED_SLASHES));
         $curl->exec();
+        
+        //if (array_key_exists("error", $curl->response)) {
+        //    throw new Exception($curl->response["error"]["error_message"], $curl->response["error"]["error_code"]);
+        //}
         
         return $curl;
     }
