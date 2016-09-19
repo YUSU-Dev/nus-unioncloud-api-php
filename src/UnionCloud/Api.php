@@ -70,6 +70,10 @@ class Api {
         }
     }
     
+    private function _curl_header($curl, $key) {
+        return $curl->responseHeaders[$key];
+    }
+    
     private function _curl_exceptions($where) {
         if (array_key_exists("errors", $where)) {
             throw new Exception($where["errors"][0]["error_message"], str_replace("ERR", "", $where["errors"][0]["error_code"]));
@@ -199,7 +203,15 @@ class Api {
     #
     public function usergroup_all($mode = "standard") {
         $curl = $this->_get("/user_groups", ["mode" => $mode]); 
-        return $curl->response["data"];
+        $max = $this->_curl_header($curl, "total_pages");
+        $output = $curl->response["data"];
+        
+        for ($i = 2; $i <= $max; $i++) {
+            $curl = $this->_get("/user_groups", ["mode" => $mode, "page" => $i]); 
+            $output = array_merge($output, $curl->response["data"]);
+        }
+        
+        return $output;
     }
     
     public function usergroup_search($filters, $mode = "standard") {
@@ -217,9 +229,19 @@ class Api {
         return $curl->response["data"][0];
     }
     
-    public function usergroup_get_members($ug_id, $mode = "standard", $from = null, $to = null) {
-        $curl = $this->_get("/user_groups/".$ug_id."/user_group_memberships", ["mode" => $mode]); 
-        return $curl->response["data"];
+    public function usergroup_get_members($ug_id, $mode = "standard", $page = null, $from = null, $to = null) {
+        if ($page == null) { $page = 1; }
+        
+        $curl = $this->_get("/user_groups/".$ug_id."/user_group_memberships", ["mode" => $mode, "page" => $page]); 
+        $max = $this->_curl_header($curl, "total_pages");
+        $output = $curl->response["data"];
+        
+        for ($i = 2; $i <= $max; $i++) {
+            $curl = $this->_get("/user_groups/".$ug_id."/user_group_memberships", ["mode" => $mode, "page" => $i]); 
+            $output = array_merge($output, $curl->response["data"]);
+        }
+        
+        return $output;
     }
     
     public function usergroup_update($ug_id, $data) {
