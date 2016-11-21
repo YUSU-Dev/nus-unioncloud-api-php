@@ -7,7 +7,7 @@ use \Exception as Exception;
 
 class Api {
     
-    private $VERSION = "0.1.0";
+    private $VERSION = "0.1.1";
     
     private $host;
     
@@ -32,6 +32,8 @@ class Api {
     private function _curl($endpoint, $verb) {
         $curl = new Curl();
         $curl->setUserAgent('UnionCloud API PHP Wrapper v' . $this->VERSION);
+		
+        $curl->setOpt(CURLOPT_CAINFO, dirname(__FILE__) . '/../../unioncloud.pem');
         $curl->setOpt(CURLOPT_SSL_VERIFYPEER, true);
         $curl->setOpt(CURLOPT_SSL_VERIFYHOST, 2);
         
@@ -122,6 +124,7 @@ class Api {
     
     
     
+    
     #
     # Authenticate
     #
@@ -163,10 +166,28 @@ class Api {
         $curl = $this->_post("/json/upload/programmes", ["data" => $data]);
         return @$curl->response["data"];
     }
-
+	
     
+	
+	
+    #
+    # Groups (Student Groups)
+    #
+    public function groups_get() {
+        $curl = $this->_post("/get_group_details", [], ["auth_token" => $this->auth_token]);
+        $resp = $curl->response["get_group_details"];
+        $array = json_decode($resp, true);
+        return $array["groups"];
+    }
+	
+    public function groups_save_membership($data) {
+        $curl = $this->_post("/save_memberships", [], array_merge(["auth_token" => $this->auth_token], $data));
+        return @$curl->response;
+    }
     
-    
+        
+        
+        
     #
     # Users
     #
@@ -260,6 +281,8 @@ class Api {
     }
     
     
+    
+    
     #
     # UserGroup Membership
     #
@@ -288,10 +311,10 @@ class Api {
         $curl = $this->_get("/event_types");
         return $curl->response["data"];
     }
-
     
-    
-    
+	
+	
+	
     #
     # Events
     #
