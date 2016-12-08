@@ -7,7 +7,7 @@ use \Exception as Exception;
 
 class Api {
     
-    private $VERSION = "0.1.1";
+    private $VERSION = "0.1.0";
     
     private $host;
     
@@ -32,7 +32,7 @@ class Api {
     private function _curl($endpoint, $verb) {
         $curl = new Curl();
         $curl->setUserAgent('UnionCloud API PHP Wrapper v' . $this->VERSION);
-		
+        
         $curl->setOpt(CURLOPT_CAINFO, dirname(__FILE__) . '/../../unioncloud.pem');
         $curl->setOpt(CURLOPT_SSL_VERIFYPEER, true);
         $curl->setOpt(CURLOPT_SSL_VERIFYHOST, 2);
@@ -124,7 +124,6 @@ class Api {
     
     
     
-    
     #
     # Authenticate
     #
@@ -182,12 +181,13 @@ class Api {
 	
     public function groups_save_membership($data) {
         $curl = $this->_post("/save_memberships", [], array_merge(["auth_token" => $this->auth_token], $data));
+        echo $this->_curl_debug($curl, true);
         return @$curl->response;
     }
+
     
-        
-        
-        
+    
+    
     #
     # Users
     #
@@ -254,6 +254,7 @@ class Api {
         if ($page == null) { $page = 1; }
         
         $curl = $this->_get("/user_groups/".$ug_id."/user_group_memberships", ["mode" => $mode, "page" => $page]); 
+        echo $this->_curl_debug($curl, true);
         $max = $this->_curl_header($curl, "total_pages");
         $output = $curl->response["data"];
         
@@ -281,13 +282,16 @@ class Api {
     }
     
     
-    
-    
     #
     # UserGroup Membership
     #
     public function usergroup_membership_create($data) {
         $curl = $this->_post("/user_group_memberships", ["data" => $data]); 
+        return $curl->response["data"];
+    }
+    
+    public function usergroup_membership_create_multiple($data) {
+        $curl = $this->_post("/user_group_memberships/upload", ["data" => $data]); 
         return $curl->response["data"];
     }
     
@@ -297,7 +301,7 @@ class Api {
     }
     
     public function usergroup_membership_delete($ugm_id) {
-        $curl = $this->_delete("/user_group_memberships/".$ugm_id, ["data" => $data]); 
+        $curl = $this->_delete("/user_group_memberships/".$ugm_id, []); 
         return $curl->response["data"];
     }
 
@@ -311,10 +315,10 @@ class Api {
         $curl = $this->_get("/event_types");
         return $curl->response["data"];
     }
+
     
-	
-	
-	
+    
+    
     #
     # Events
     #
@@ -394,5 +398,74 @@ class Api {
         $curl = $this->_delete("/events/".$event_id."/questions/".$question_id); 
         return $curl->response["data"];
     }
+
+    
+    
+    
+    #
+    # eVoting Elections
+    #
+    public function election_categories($page = 1) {
+        $curl = $this->_get("/election_categories", ["page" => $page]); 
+        return $curl->response;
+    }
+    
+    public function election_category_get($category_id) {
+        $curl = $this->_get("/election_categories/" . $category_id, []); 
+        return $curl->response;
+    }   
+    
+    
+    public function election_positions($page = 1, $mode = "full") {
+        $curl = $this->_get("/election_positions", ["page" => $page, "mode" => $mode]); 
+        return $curl->response;
+    }
+    
+    public function election_position_get($position_id, $mode = "full") {
+        $curl = $this->_get("/election_positions/" . $position_id, ["mode" => $mode]);
+        return $curl->response;
+    }   
+    
+    
+    public function elections($page = 1, $mode = "full") {
+        $curl = $this->_get("/elections", ["page" => $page, "mode" => $mode]);
+        return $curl->response;
+    }
+    
+    public function election_get($election_id, $mode = "full") {
+        $curl = $this->_get("/elections/" . $election_id, ["mode" => $mode]); 
+        return $curl->response;
+    }   
+ 
+    
+    public function election_standings($election_id, $page = 1, $mode = "standard") {
+        $curl = $this->_get("/elections/" . $election_id . "/election_standings", ["page" => $page, "mode" => $mode]); 
+        return $curl->response;
+    }
+
+    // returns filepath
+    public function election_voters($election_id, $voter_type = "actual", $page = 1) {
+        $curl = $this->_get("/elections/" . $election_id . "/election_voters", ["page" => $page, "voter_type" => $voter_type]); 
+        
+        $file = $curl->response["file_path"];
+        $src = file_get_contents($file);
+        return json_decode($src, true);
+    }
+    
+    // returns filepath
+    public function election_voters_demographics($election_id, $voter_type = "actual", $page = 1, $mode = "basic") {
+        $curl = $this->_get("/elections/" . $election_id . "/election_voters_demographics", ["page" => $page, "voter_type" => $voter_type, "mode" => $mode]); 
+       
+        $file = $curl->response["file_path"];
+        $src = file_get_contents($file);
+        return json_decode($src, true);
+    }
+    
+    
+    public function election_votes($election_id, $page = 1) {
+        $curl = $this->_get("/elections/" . $election_id . "/votes", ["page" => $page]); 
+        return $curl->response;
+    }
+    
     
 }
